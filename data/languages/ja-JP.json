@@ -3,7 +3,9 @@
     "title": "ログイン",
     "username": "ユーザー名",
     "password": "パスワード",
-    "submit": "ログイン"
+    "submit": "ログイン",
+    "tips": "入力してください",
+    "error": "ログイン失敗"
   },
   "lang": {
     "current": "日本語"

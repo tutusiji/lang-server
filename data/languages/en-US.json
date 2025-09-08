@@ -3,7 +3,9 @@
     "title": "Login231321",
     "username": "Username",
     "password": "Password",
-    "submit": "Sign In"
+    "submit": "Sign In",
+    "tips": "Please enter",
+    "error": "Login failed"
   },
   "lang": {
     "current": "English"

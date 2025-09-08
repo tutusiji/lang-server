@@ -3,7 +3,9 @@
     "title": "Accesso al sistema",
     "username": "Account",
     "password": "Password",
-    "submit": "Accedi"
+    "submit": "Accedi",
+    "tips": "Inserisci",
+    "error": "Accesso non riuscito"
   },
   "lang": {
     "current": "Cinese"

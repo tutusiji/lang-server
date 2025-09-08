@@ -3,7 +3,9 @@
     "title": "登入系統",
     "username": "帳號",
     "password": "密碼",
-    "submit": "登入"
+    "submit": "登入",
+    "tips": "請輸入",
+    "error": "登入失敗"
   },
   "lang": {
     "current": "繁體中文"

@@ -3,7 +3,9 @@
     "title": "登录系统1",
     "username": "账号",
     "password": "密码",
-    "submit": "登录"
+    "submit": "登录",
+    "tips": "请输入",
+    "error": "登陆失败"
   },
   "lang": {
     "current": "中文"

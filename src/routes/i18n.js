@@ -347,6 +347,100 @@ async function i18nRoutes(fastify, options) {
     }
   });
 
+  // 批量更新多个语言的指定key
+  fastify.post('/languages/update-key-batch', async (request, reply) => {
+    try {
+      const { key, translations } = request.body;
+      
+      if (!key || typeof key !== 'string') {
+        return reply.status(400).send({
+          success: false,
+          error: 'key must be a valid string'
+        });
+      }
+      
+      if (!translations || typeof translations !== 'object') {
+        return reply.status(400).send({
+          success: false,
+          error: 'translations must be an object'
+        });
+      }
+
+      const results = [];
+      const errors = [];
+
+      // 批量更新每个语言
+      for (const [languageCode, value] of Object.entries(translations)) {
+        try {
+          const filePath = path.join(LANGUAGES_DIR, `${languageCode}.json`);
+          
+          // 检查文件是否存在，如果不存在则创建
+          let languageTranslations = {};
+          if (await fs.pathExists(filePath)) {
+            languageTranslations = await fs.readJson(filePath);
+          }
+          
+          // 设置嵌套key的值
+          const keys = key.split('.');
+          let current = languageTranslations;
+          
+          // 遍历到倒数第二个key，确保路径存在
+          for (let i = 0; i < keys.length - 1; i++) {
+            const k = keys[i];
+            if (!current[k] || typeof current[k] !== 'object') {
+              current[k] = {};
+            }
+            current = current[k];
+          }
+          
+          // 设置最后一个key的值
+          const lastKey = keys[keys.length - 1];
+          current[lastKey] = value || '';
+
+          // 保存更新后的文件
+          await fs.writeJson(filePath, languageTranslations, { spaces: 2 });
+          
+          results.push({
+            code: languageCode,
+            key,
+            value,
+            success: true
+          });
+        } catch (error) {
+          errors.push({
+            code: languageCode,
+            key,
+            error: error.message
+          });
+        }
+      }
+      
+      // 只有在有成功更新的情况下才递增版本号
+      if (results.length > 0) {
+        await incrementVersion();
+      }
+
+      return {
+        success: true,
+        message: `Key '${key}' batch update completed`,
+        data: {
+          key,
+          successCount: results.length,
+          errorCount: errors.length,
+          results,
+          errors: errors.length > 0 ? errors : undefined
+        }
+      };
+    } catch (error) {
+      fastify.log.error('Error in batch key update:', error);
+      reply.status(500).send({
+        success: false,
+        error: 'Failed to batch update language key',
+        message: error.message
+      });
+    }
+  });
+
   // 添加新的语言
   fastify.post('/language', async (request, reply) => {
     try {

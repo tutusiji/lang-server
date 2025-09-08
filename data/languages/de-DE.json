@@ -3,7 +3,9 @@
     "title": "Anmeldesystem",
     "username": "Benutzerkonto",
     "password": "Passwort",
-    "submit": "Anmelden"
+    "submit": "Anmelden",
+    "tips": "Bitte eingeben",
+    "error": "Anmeldung fehlgeschlagen"
   },
   "lang": {
     "current": "Chinesisch"
