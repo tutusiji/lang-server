@@ -1,0 +1,50 @@
+{
+  "login": {
+    "title": "登入系統",
+    "username": "帳號",
+    "password": "密碼",
+    "submit": "登入"
+  },
+  "lang": {
+    "current": "繁體中文"
+  },
+  "user": {
+    "welcome": "歡迎",
+    "logout": "登出"
+  },
+  "menu": {
+    "projectManagement": "項目管理",
+    "projectOverview": "項目總覽",
+    "projectDetail": "項目詳情",
+    "robotManagement": "機器人管理",
+    "productDevices": "產品設備",
+    "modelManagement": "模型管理",
+    "alarmLogs": "告警日誌",
+    "eventTypes": "事件類型",
+    "skillManagement": "技能倉庫",
+    "skillList": "技能列表",
+    "skillDetail": "技能詳情",
+    "taskList": "訓練任務",
+    "trainingHistory": "訓練歷史",
+    "publicSkills": "公共技能",
+    "mySkills": "我的技能",
+    "systemSettings": "系統設置",
+    "users": "用戶管理",
+    "roles": "角色管理",
+    "spaces": "空間管理",
+    "organizations": "組織管理",
+    "loginLogs": "登入日誌",
+    "operationLogs": "操作日誌",
+    "internationalization": "國際化管理",
+    "dataDictionary": "數據字典",
+    "menuManagement": "菜單管理"
+  },
+  "i18n": {
+    "add": "新增",
+    "edit": "編輯",
+    "delete": "刪除",
+    "save": "保存",
+    "cancel": "取消",
+    "addLang": "新增語言"
+  }
+}

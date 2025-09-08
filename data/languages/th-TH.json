@@ -1,0 +1,53 @@
+{
+  "login": {
+    "title": "เข้าสู่ระบบ",
+    "username": "บัญชีผู้ใช้",
+    "password": "รหัสผ่าน",
+    "submit": "เข้าสู่ระบบ"
+  },
+  "lang": {
+    "current": "中文"
+  },
+  "user": {
+    "welcome": "ยินดีต้อนรับ",
+    "logout": "ออกจากระบบ"
+  },
+  "menu": {
+    "projectManagement": "การจัดการโครงการ",
+    "projectOverview": "ภาพรวมโครงการ",
+    "projectDetail": "รายละเอียดโครงการ",
+    "robotManagement": "การจัดการหุ่นยนต์",
+    "productDevices": "ผลิตภัณฑ์และอุปกรณ์",
+    "modelManagement": "การจัดการโมเดล",
+    "alarmLogs": "บันทึกการแจ้งเตือน",
+    "eventTypes": "ประเภทเหตุการณ์",
+    "skillManagement": "คลังสกิล",
+    "skillList": "รายการสกิล",
+    "skillDetail": "รายละเอียดสกิล",
+    "taskList": "งานฝึกอบรม",
+    "trainingHistory": "ประวัติการฝึกอบรม",
+    "publicSkills": "สกิลสาธารณะ",
+    "mySkills": "สกิลของฉัน",
+    "systemSettings": "การตั้งค่าระบบ",
+    "users": "การจัดการผู้ใช้",
+    "roles": "การจัดการบทบาท",
+    "spaces": "การจัดการพื้นที่",
+    "organizations": "การจัดการองค์กร",
+    "loginLogs": "บันทึกการเข้าสู่ระบบ",
+    "operationLogs": "บันทึกการดำเนินงาน",
+    "internationalization": "การจัดการสากล",
+    "dataDictionary": "พจนานุกรมข้อมูล",
+    "menuManagement": "การจัดการเมนู"
+  },
+  "i18n": {
+    "add": "เพิ่ม",
+    "edit": "แก้ไข",
+    "delete": "ลบ",
+    "save": "บันทึก",
+    "cancel": "ยกเลิก",
+    "addLang": "เพิ่มภาษา"
+  },
+  "test": {
+    "message": "ข้อความทดสอบ"
+  }
+}

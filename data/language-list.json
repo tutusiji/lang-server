@@ -1,0 +1,57 @@
+{
+  "version": "1.0.13",
+  "lastUpdated": "2025-09-08T18:05:31.950Z",
+  "languages": [
+    {
+      "code": "zh-CN",
+      "name": "简体中文",
+      "nativeName": "中文",
+      "enabled": true,
+      "file": "zh-CN.json"
+    },
+    {
+      "code": "zh-TW",
+      "name": "繁体中文",
+      "nativeName": "繁體中文",
+      "enabled": true,
+      "file": "zh-TW.json"
+    },
+    {
+      "code": "en-US",
+      "name": "English",
+      "nativeName": "English",
+      "enabled": true,
+      "file": "en-US.json"
+    },
+    {
+      "code": "ja-JP",
+      "name": "日语",
+      "nativeName": "日本語",
+      "enabled": true,
+      "file": "ja-JP.json"
+    },
+    {
+      "code": "th-TH",
+      "name": "泰语",
+      "nativeName": "ไทย",
+      "enabled": true,
+      "file": "th-TH.json"
+    },
+    {
+      "code": "de-DE",
+      "name": "德语",
+      "nativeName": "德语",
+      "enabled": true,
+      "file": "de-DE.json"
+    },
+    {
+      "code": "it-IT",
+      "name": "意大利语",
+      "nativeName": "意大利语",
+      "enabled": true,
+      "file": "it-IT.json"
+    }
+  ],
+  "defaultLanguage": "zh-CN",
+  "fallbackLanguage": "zh-CN"
+}

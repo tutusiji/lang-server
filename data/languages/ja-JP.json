@@ -1,0 +1,50 @@
+{
+  "login": {
+    "title": "ログイン",
+    "username": "ユーザー名",
+    "password": "パスワード",
+    "submit": "ログイン"
+  },
+  "lang": {
+    "current": "日本語"
+  },
+  "user": {
+    "welcome": "ようこそ",
+    "logout": "ログアウト"
+  },
+  "menu": {
+    "projectManagement": "プロジェクト管理",
+    "projectOverview": "プロジェクト概要",
+    "projectDetail": "プロジェクト詳細",
+    "robotManagement": "ロボット管理",
+    "productDevices": "製品デバイス",
+    "modelManagement": "モデル管理",
+    "alarmLogs": "アラームログ",
+    "eventTypes": "イベントタイプ",
+    "skillManagement": "スキル倉庫",
+    "skillList": "スキル一覧",
+    "skillDetail": "スキル詳細",
+    "taskList": "トレーニングタスク",
+    "trainingHistory": "トレーニング履歴",
+    "publicSkills": "公開スキル",
+    "mySkills": "マイスキル",
+    "systemSettings": "システム設定",
+    "users": "ユーザー管理",
+    "roles": "ロール管理",
+    "spaces": "スペース",
+    "organizations": "組織",
+    "loginLogs": "ログインログ",
+    "operationLogs": "操作ログ",
+    "internationalization": "国際化管理",
+    "dataDictionary": "データ辞書",
+    "menuManagement": "メニュー管理"
+  },
+  "i18n": {
+    "add": "追加",
+    "edit": "編集",
+    "delete": "削除",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "addLang": "言語を追加"
+  }
+}

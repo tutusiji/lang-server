@@ -1,0 +1,53 @@
+{
+  "login": {
+    "title": "登录系统1",
+    "username": "账号",
+    "password": "密码",
+    "submit": "登录"
+  },
+  "lang": {
+    "current": "中文"
+  },
+  "user": {
+    "welcome": "欢迎",
+    "logout": "退出登录"
+  },
+  "menu": {
+    "projectManagement": "项目管理",
+    "projectOverview": "项目总览",
+    "projectDetail": "项目详情",
+    "robotManagement": "机器人管理",
+    "productDevices": "产品设备",
+    "modelManagement": "模型管理",
+    "alarmLogs": "告警日志",
+    "eventTypes": "事件类型",
+    "skillManagement": "技能仓库",
+    "skillList": "技能列表",
+    "skillDetail": "技能详情",
+    "taskList": "训练任务",
+    "trainingHistory": "训练历史",
+    "publicSkills": "公共技能",
+    "mySkills": "我的技能",
+    "systemSettings": "系统设置",
+    "users": "用户管理",
+    "roles": "角色管理",
+    "spaces": "空间管理",
+    "organizations": "组织管理",
+    "loginLogs": "登录日志",
+    "operationLogs": "操作日志",
+    "internationalization": "国际化管理",
+    "dataDictionary": "数据字典",
+    "menuManagement": "菜单管理"
+  },
+  "i18n": {
+    "add": "新增",
+    "edit": "编辑",
+    "delete": "删除",
+    "save": "保存",
+    "cancel": "取消",
+    "addLang": "新增语言"
+  },
+  "test": {
+    "message": "测试消息"
+  }
+}

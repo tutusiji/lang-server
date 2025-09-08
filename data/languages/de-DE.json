@@ -1,0 +1,53 @@
+{
+  "login": {
+    "title": "Anmeldesystem",
+    "username": "Benutzerkonto",
+    "password": "Passwort",
+    "submit": "Anmelden"
+  },
+  "lang": {
+    "current": "Chinesisch"
+  },
+  "user": {
+    "welcome": "Herzlich willkommen",
+    "logout": "Abmelden"
+  },
+  "menu": {
+    "projectManagement": "Projektmanagement",
+    "projectOverview": "Projektübersicht",
+    "projectDetail": "Projektdetails",
+    "robotManagement": "Robotersteuerung",
+    "productDevices": "Produktgerät",
+    "modelManagement": "Modellverwaltung",
+    "alarmLogs": "Alarmprotokoll",
+    "eventTypes": "Ereignistyp",
+    "skillManagement": "Kompetenzspeicher",
+    "skillList": "Fähigkeitenliste",
+    "skillDetail": "Fähigkeitsdetails",
+    "taskList": "Trainingsaufgabe",
+    "trainingHistory": "Trainingsverlauf",
+    "publicSkills": "Allgemeine Fähigkeiten",
+    "mySkills": "Meine Fähigkeiten",
+    "systemSettings": "Systemeinstellungen",
+    "users": "Benutzerverwaltung",
+    "roles": "Rollenverwaltung",
+    "spaces": "Raummanagement",
+    "organizations": "Organisationsmanagement",
+    "loginLogs": "Anmeldejournal",
+    "operationLogs": "Betriebsprotokoll",
+    "internationalization": "Internationales Management",
+    "dataDictionary": "Datenwörterbuch",
+    "menuManagement": "Menüverwaltung"
+  },
+  "i18n": {
+    "add": "Neu hinzugefügt",
+    "edit": "Redakteur",
+    "delete": "Löschen",
+    "save": "Speichern",
+    "cancel": "Stornieren",
+    "addLang": "Hinzufügung von Sprachen"
+  },
+  "test": {
+    "message": "Testnachricht"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "login": {
+    "title": "Login231321",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign In"
+  },
+  "lang": {
+    "current": "English"
+  },
+  "user": {
+    "welcome": "Welcome",
+    "logout": "Logout"
+  },
+  "menu": {
+    "projectManagement": "Project Management",
+    "projectOverview": "Project Overview",
+    "projectDetail": "Project Detail",
+    "robotManagement": "Robot Management",
+    "productDevices": "Product Devices",
+    "modelManagement": "Model Management",
+    "alarmLogs": "Alarm Logs",
+    "eventTypes": "Event Types",
+    "skillManagement": "Skill Repository",
+    "skillList": "Skill List",
+    "skillDetail": "Skill Detail",
+    "taskList": "Training Tasks",
+    "trainingHistory": "Training History",
+    "publicSkills": "Public Skills",
+    "mySkills": "My Skills",
+    "systemSettings": "System Settings",
+    "users": "User Management",
+    "roles": "Role Management",
+    "spaces": "Spaces",
+    "organizations": "Organizations",
+    "loginLogs": "Login Logs",
+    "operationLogs": "Operation Logs",
+    "internationalization": "Internationalization",
+    "dataDictionary": "Data Dictionary",
+    "menuManagement": "Menu Management"
+  },
+  "i18n": {
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "addLang": "Add Language"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "login": {
+    "title": "",
+    "username": "",
+    "password": "",
+    "submit": ""
+  },
+  "lang": {
+    "current": ""
+  },
+  "user": {
+    "welcome": "",
+    "logout": ""
+  },
+  "menu": {
+    "projectManagement": "",
+    "projectOverview": "",
+    "projectDetail": "",
+    "robotManagement": "",
+    "productDevices": "",
+    "modelManagement": "",
+    "alarmLogs": "",
+    "eventTypes": "",
+    "skillManagement": "",
+    "skillList": "",
+    "skillDetail": "",
+    "taskList": "",
+    "trainingHistory": "",
+    "publicSkills": "",
+    "mySkills": "",
+    "systemSettings": "",
+    "users": "",
+    "roles": "",
+    "spaces": "",
+    "organizations": "",
+    "loginLogs": "",
+    "operationLogs": "",
+    "internationalization": "",
+    "dataDictionary": "",
+    "menuManagement": ""
+  },
+  "i18n": {
+    "add": "",
+    "edit": "",
+    "delete": "",
+    "save": "",
+    "cancel": "",
+    "addLang": ""
+  }
+}
