@@ -36,7 +36,7 @@ fastify.get('/', async () => ({
 // 启动服务器
 const start = async () => {
   try {
-    const port = process.env.PORT || 3001;
+    const port = process.env.PORT || 3400;
     const host = process.env.HOST || '0.0.0.0';
     
     await fastify.listen({ port, host });

@@ -1,6 +1,6 @@
 {
-  "version": "1.0.22",
-  "lastUpdated": "2025-09-08T19:54:29.266Z",
+  "version": "1.0.30",
+  "lastUpdated": "2025-09-10T16:40:16.983Z",
   "languages": [
     {
       "code": "zh-CN",
@@ -43,13 +43,6 @@
       "nativeName": "德语",
       "enabled": true,
       "file": "de-DE.json"
-    },
-    {
-      "code": "it-IT",
-      "name": "意大利语",
-      "nativeName": "意大利语",
-      "enabled": true,
-      "file": "it-IT.json"
     }
   ],
   "defaultLanguage": "zh-CN",

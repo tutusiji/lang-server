@@ -26,12 +26,12 @@ npm run dev
 npm start
 ```
 
-服务默认运行在: `http://localhost:3001`
+服务默认运行在: `http://localhost:3400`
 
 ## API 接口文档
 
 ### 基础信息
-- **Base URL**: `http://localhost:3001/api/i18n`
+- **Base URL**: `http://localhost:3400/api/i18n`
 - **数据格式**: JSON
 - **编码**: UTF-8
 
@@ -209,13 +209,13 @@ vue3-i18n-api/
 ```javascript
 // 获取语言列表
 const getLanguages = async () => {
-  const response = await axios.get('http://localhost:3001/api/i18n/languages');
+  const response = await axios.get('http://localhost:3400/api/i18n/languages');
   return response.data.data;
 };
 
 // 批量加载语言文件
 const loadLanguageFiles = async (codes) => {
-  const response = await axios.post('http://localhost:3001/api/i18n/languages/batch', {
+  const response = await axios.post('http://localhost:3400/api/i18n/languages/batch', {
     codes
   });
   return response.data.data;
@@ -223,7 +223,7 @@ const loadLanguageFiles = async (codes) => {
 
 // 更新语言文件
 const updateLanguage = async (code, translations) => {
-  const response = await axios.put(`http://localhost:3001/api/i18n/language/${code}`, {
+  const response = await axios.put(`http://localhost:3400/api/i18n/language/${code}`, {
     translations
   });
   return response.data;
@@ -261,7 +261,7 @@ const setupI18n = async () => {
 
 创建 `.env` 文件：
 ```env
-PORT=3001
+PORT=3400
 HOST=0.0.0.0
 NODE_ENV=development
 ```
