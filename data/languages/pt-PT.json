@@ -1,0 +1,55 @@
+{
+  "login": {
+    "title": "Sistema de Login Remoto",
+    "username": "Conta",
+    "password": "Senha",
+    "submit": "Entrar",
+    "tips": "Por favor, insira",
+    "error": "Falha no login"
+  },
+  "lang": {
+    "current": "Chinês"
+  },
+  "user": {
+    "welcome": "Bem-vindo",
+    "logout": "Sair"
+  },
+  "menu": {
+    "projectManagement": "Gestão de Projetos",
+    "projectOverview": "Visão Geral do Projeto",
+    "projectDetail": "Detalhes do Projeto",
+    "robotManagement": "Gestão de Robôs",
+    "productDevices": "Dispositivos de Produto",
+    "modelManagement": "Gestão de Modelos",
+    "alarmLogs": "Registos de Alarmes",
+    "eventTypes": "Tipos de Evento",
+    "skillManagement": "Repositório de Competências",
+    "skillList": "Lista de Competências",
+    "skillDetail": "Detalhes da Competência",
+    "taskList": "Tarefas de Treinamento",
+    "trainingHistory": "Histórico de Treinamento",
+    "publicSkills": "Competências Públicas",
+    "mySkills": "Minhas Competências",
+    "systemSettings": "Configurações do Sistema",
+    "users": "Gestão de Utilizadores",
+    "roles": "Gestão de Funções",
+    "spaces": "Gestão de Espaços",
+    "organizations": "Gestão de Organizações",
+    "loginLogs": "Registos de Login",
+    "operationLogs": "Registos de Operação",
+    "internationalization": "Gestão de Internacionalização",
+    "dataDictionary": "Dicionário de Dados",
+    "menuManagement": "Gestão de Menu"
+  },
+  "i18n": {
+    "add": "Adicionar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "addLang": "Adicionar Idioma"
+  },
+  "test": {
+    "message": "Mensagem de Teste"
+  }
+}

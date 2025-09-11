@@ -19,6 +19,54 @@ async function i18nRoutes(fastify, options) {
 
 
 
+  // 检查版本更新
+  // UNUSED: 前端未调用。可直接删除。若删除此路由，可同时删除 compareVersions 函数。
+  fastify.post('/version/check', async (request, reply) => {
+    try {
+      const { clientVersion } = request.body;
+      const languageList = await fs.readJson(LANGUAGE_LIST_FILE);
+      
+      const needsUpdate = compareVersions(languageList.version, clientVersion || '0.0.0') > 0;
+      
+      return {
+        success: true,
+        data: {
+          needsUpdate,
+          clientVersion: clientVersion || '0.0.0',
+          serverVersion: languageList.version,
+          lastUpdated: languageList.lastUpdated
+        }
+      };
+    } catch (error) {
+      fastify.log.error('Error checking version:', error);
+      reply.status(500).send({
+        success: false,
+        error: 'Failed to check version',
+        message: error.message
+      });
+    }
+  });
+
+  // 获取支持的语言列表
+  // UNUSED: 前端使用 /data/complete 获取完整数据；若不需要轻量列表，可删除。
+  fastify.get('/languages', async (request, reply) => {
+    try {
+      const languageList = await fs.readJson(LANGUAGE_LIST_FILE);
+      reply.header('Cache-Control', 'public, max-age=30');
+      return {
+        success: true,
+        data: languageList
+      };
+    } catch (error) {
+      fastify.log.error('Error reading language list:', error);
+      reply.status(500).send({
+        success: false,
+        error: 'Failed to read language list',
+        message: error.message
+      });
+    }
+  });
+
   // 获取指定语言的翻译文件
   fastify.get('/language/:code', async (request, reply) => {
     try {
@@ -47,6 +95,74 @@ async function i18nRoutes(fastify, options) {
         error: 'Failed to read language file',
         message: error.message
       });
+    }
+  });
+
+  // 批量获取多个语言文件
+  // UNUSED: 已被 /data/complete 聚合方案取代，可删除。
+  fastify.post('/languages/batch', async (request, reply) => {
+    try {
+      const { codes } = request.body;
+      
+      if (!Array.isArray(codes)) {
+        return reply.status(400).send({
+          success: false,
+          error: 'codes must be an array'
+        });
+      }
+
+      const results = {};
+      const errors = [];
+
+      for (const code of codes) {
+        try {
+          const filePath = path.join(LANGUAGES_DIR, `${code}.json`);
+          
+          if (await fs.pathExists(filePath)) {
+            const translations = await fs.readJson(filePath);
+            results[code] = translations;
+          } else {
+            errors.push({ code, error: 'File not found' });
+          }
+        } catch (error) {
+          errors.push({ code, error: error.message });
+        }
+      }
+
+      return {
+        success: true,
+        data: results,
+        errors: errors.length > 0 ? errors : undefined
+      };
+    } catch (error) {
+      fastify.log.error('Error in batch language fetch:', error);
+      reply.status(500).send({
+        success: false,
+        error: 'Failed to fetch language files',
+        message: error.message
+      });
+    }
+  });
+
+  // 新：聚合接口：返回已启用语言的 messages 映射（减少前端批量请求次数，可通过 ?includeDisabled=true 覆盖）
+  // UNUSED: 与 /data/complete 功能重叠，可删除。
+  fastify.get('/languages/enabled-messages', async (request, reply) => {
+    try {
+      const includeDisabled = request.query.includeDisabled === 'true';
+      const languageList = await fs.readJson(LANGUAGE_LIST_FILE);
+      const target = includeDisabled ? languageList.languages : languageList.languages.filter(l => l.enabled);
+      const result = {};
+      for (const lang of target) {
+        const filePath = path.join(LANGUAGES_DIR, `${lang.code}.json`);
+        if (await fs.pathExists(filePath)) {
+          result[lang.code] = await fs.readJson(filePath);
+        }
+      }
+      reply.header('Cache-Control', 'public, max-age=30');
+      return { success: true, data: { config: languageList, messages: result } };
+    } catch (error) {
+      fastify.log.error('Error reading enabled messages:', error);
+      reply.status(500).send({ success: false, error: 'Failed to read enabled messages', message: error.message });
     }
   });
 
@@ -90,6 +206,46 @@ async function i18nRoutes(fastify, options) {
     }
   });
 
+  // 更新语言列表配置
+  // UNUSED: 前端未做整表覆盖操作，实际通过 add/delete 操作维护；可删除或改造为 PATCH 精细更新。
+  fastify.post('/languages/update', async (request, reply) => {
+    try {
+      const { languages, defaultLanguage, fallbackLanguage } = request.body;
+      
+      // 验证必需字段
+      if (!Array.isArray(languages)) {
+        return reply.status(400).send({
+          success: false,
+          error: 'languages must be an array'
+        });
+      }
+
+      const newConfig = {
+        languages,
+        defaultLanguage: defaultLanguage || 'zh-CN',
+        fallbackLanguage: fallbackLanguage || 'zh-CN'
+      };
+
+      await fs.writeJson(LANGUAGE_LIST_FILE, newConfig, { spaces: 2 });
+      
+      // 自动递增版本号
+      await incrementVersion();
+
+      return {
+        success: true,
+        message: 'Language configuration updated successfully',
+        data: newConfig
+      };
+    } catch (error) {
+      fastify.log.error('Error updating language configuration:', error);
+      reply.status(500).send({
+        success: false,
+        error: 'Failed to update language configuration',
+        message: error.message
+      });
+    }
+  });
+
   // 更新指定语言的翻译文件
   fastify.post('/language/:code/update', async (request, reply) => {
     try {
@@ -123,6 +279,75 @@ async function i18nRoutes(fastify, options) {
       reply.status(500).send({
         success: false,
         error: 'Failed to update language file',
+        message: error.message
+      });
+    }
+  });
+
+  // 部分更新语言文件中的指定key
+  // UNUSED: 前端统一使用 /languages/update-key-batch；此接口可删除（留兼容缓冲期后移除）。
+  fastify.post('/language/:code/update-key', async (request, reply) => {
+    try {
+      const { code } = request.params;
+      const { key, value } = request.body;
+      
+      if (!key || typeof key !== 'string') {
+        return reply.status(400).send({
+          success: false,
+          error: 'key must be a valid string'
+        });
+      }
+
+      const filePath = path.join(LANGUAGES_DIR, `${code}.json`);
+      
+      // 检查文件是否存在
+      if (!(await fs.pathExists(filePath))) {
+        return reply.status(404).send({
+          success: false,
+          error: `Language file for ${code} not found`
+        });
+      }
+
+      // 读取现有翻译文件
+      const translations = await fs.readJson(filePath);
+      
+      // 设置嵌套key的值
+      const keys = key.split('.');
+      let current = translations;
+      
+      // 遍历到倒数第二个key，确保路径存在
+      for (let i = 0; i < keys.length - 1; i++) {
+        const k = keys[i];
+        if (!current[k] || typeof current[k] !== 'object') {
+          current[k] = {};
+        }
+        current = current[k];
+      }
+      
+      // 设置最后一个key的值
+      const lastKey = keys[keys.length - 1];
+      current[lastKey] = value || '';
+
+  // 保存当前语言
+  await fs.writeJson(filePath, translations, { spaces: 2 });
+
+  // 级联：确保其它语言与模板也包含该 key
+  await propagateKeyToAllLanguages(key, code, value || '');
+
+      return {
+        success: true,
+        message: `Key '${key}' updated successfully in ${code}`,
+        data: {
+          code,
+          key,
+          value
+        }
+      };
+    } catch (error) {
+      fastify.log.error(`Error updating key in language file for ${request.params.code}:`, error);
+      reply.status(500).send({
+        success: false,
+        error: 'Failed to update language key',
         message: error.message
       });
     }
@@ -552,6 +777,51 @@ async function i18nRoutes(fastify, options) {
     }
   });
 
+  // 获取文件清单（用于增量更新）
+  // UNUSED: 未实施增量同步策略，可删除。未来如需 ETag/增量再恢复。
+  fastify.get('/manifest', async (request, reply) => {
+    try {
+      const languageList = await fs.readJson(LANGUAGE_LIST_FILE);
+      
+      const manifest = {
+        version: languageList.version,
+        lastUpdated: languageList.lastUpdated,
+        files: {
+          'language-list.json': {
+            version: languageList.version,
+            lastModified: (await fs.stat(LANGUAGE_LIST_FILE)).mtime.toISOString()
+          }
+        }
+      };
+      
+      // 添加语言文件信息
+      const languageFiles = await fs.readdir(LANGUAGES_DIR);
+      for (const file of languageFiles) {
+        if (file.endsWith('.json')) {
+          const filePath = path.join(LANGUAGES_DIR, file);
+          const stats = await fs.stat(filePath);
+          manifest.files[`languages/${file}`] = {
+            version: languageList.version,
+            lastModified: stats.mtime.toISOString()
+          };
+        }
+      }
+      
+      reply.header('Cache-Control', 'public, max-age=30');
+      return {
+        success: true,
+        data: manifest
+      };
+    } catch (error) {
+      fastify.log.error('Error creating manifest:', error);
+      reply.status(500).send({
+        success: false,
+        error: 'Failed to create manifest',
+        message: error.message
+      });
+    }
+  });
+
   // 手动创建当前版本的语言包
   fastify.post('/download/create-package', async (request, reply) => {
     try {
@@ -627,6 +897,92 @@ async function i18nRoutes(fastify, options) {
     }
   });
 
+  // 生成下载包并返回下载URL（保留原有接口兼容性）
+  // UNUSED: 新方案使用 /download/latest 与 /download/create-package；可删除（保留期结束后）。
+  fastify.get('/download/all', async (request, reply) => {
+    try {
+      const archiver = require('archiver');
+      const crypto = require('crypto');
+      
+      // 创建临时文件夹
+      const tempDir = path.join(__dirname, '../../temp');
+      await fs.ensureDir(tempDir);
+      
+      // 生成唯一文件名
+      const timestamp = Date.now();
+      const randomId = crypto.randomBytes(8).toString('hex');
+      const fileName = `i18n-files-${timestamp}-${randomId}.zip`;
+      const filePath = path.join(tempDir, fileName);
+      
+      // 创建ZIP文件
+      const output = fs.createWriteStream(filePath);
+      const archive = archiver('zip', { zlib: { level: 9 } });
+      
+      archive.pipe(output);
+      
+      // 添加版本信息（从language-list.json中提取）
+      const languageList = await fs.readJson(LANGUAGE_LIST_FILE);
+      const versionInfo = {
+        version: languageList.version,
+        lastUpdated: languageList.lastUpdated
+      };
+      archive.append(JSON.stringify(versionInfo, null, 2), { name: 'version.json' });
+      
+      // 添加语言列表
+      archive.append(JSON.stringify(languageList, null, 2), { name: 'language-list.json' });
+      
+      // 添加所有语言文件
+      const languageFiles = await fs.readdir(LANGUAGES_DIR);
+      for (const file of languageFiles) {
+        if (file.endsWith('.json')) {
+          const fileContentPath = path.join(LANGUAGES_DIR, file);
+          const content = await fs.readJson(fileContentPath);
+          archive.append(JSON.stringify(content, null, 2), { name: `languages/${file}` });
+        }
+      }
+      
+      // 等待ZIP文件创建完成
+      await new Promise((resolve, reject) => {
+        output.on('close', resolve);
+        archive.on('error', reject);
+        archive.finalize();
+      });
+      
+      // 获取实际文件大小
+      const stats = await fs.stat(filePath);
+      
+      // 返回下载URL
+      const downloadUrl = `/api/i18n/download/file/${fileName}`;
+      
+      reply.send({
+        success: true,
+        data: {
+          downloadUrl,
+          fileName: 'i18n-files.zip',
+          fileSize: stats.size
+        }
+      });
+      
+      // 设置定时清理（30分钟后删除文件）
+      setTimeout(async () => {
+        try {
+          await fs.remove(filePath);
+          console.log(`Cleaned up temporary file: ${fileName}`);
+        } catch (err) {
+          console.error('Failed to clean up temporary file:', err);
+        }
+      }, 30 * 60 * 1000);
+      
+    } catch (error) {
+      fastify.log.error('Error creating download archive:', error);
+      reply.status(500).send({
+        success: false,
+        error: 'Failed to create download archive',
+        message: error.message
+      });
+    }
+  });
+  
   // 下载文件接口
   fastify.get('/download/file/:fileName', async (request, reply) => {
     try {
@@ -788,6 +1144,21 @@ async function propagateKeyToAllLanguages(key, justUpdatedCode = null, updatedVa
   }
 }
 
+// 版本比较工具函数
+function compareVersions(version1, version2) {
+  const v1parts = version1.split('.').map(Number);
+  const v2parts = version2.split('.').map(Number);
+  
+  for (let i = 0; i < Math.max(v1parts.length, v2parts.length); i++) {
+    const v1part = v1parts[i] || 0;
+    const v2part = v2parts[i] || 0;
+    
+    if (v1part > v2part) return 1;
+    if (v1part < v2part) return -1;
+  }
+  
+  return 0;
+}
 
 // 创建语言包函数
 async function createLanguagePackage(version) {

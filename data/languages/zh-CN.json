@@ -1,7 +1,7 @@
 {
   "login": {
-    "title": "登录系统-remote",
-    "username": "账号",
+    "title": "登入系統1",
+    "username": "账号1",
     "password": "密码",
     "submit": "登录",
     "tips": "请输入",
