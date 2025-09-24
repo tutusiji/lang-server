@@ -1,6 +1,6 @@
 {
-  "version": "1.0.55",
-  "lastUpdated": "2025-09-11T17:08:03.982Z",
+  "version": "1.1.36",
+  "lastUpdated": "2025-09-24T15:43:07.188Z",
   "languages": [
     {
       "code": "zh-CN",
@@ -50,6 +50,20 @@
       "nativeName": "葡萄牙语",
       "enabled": true,
       "file": "pt-PT.json"
+    },
+    {
+      "code": "fi-FI",
+      "name": "芬兰语",
+      "nativeName": "芬兰语",
+      "enabled": true,
+      "file": "fi-FI.json"
+    },
+    {
+      "code": "it-IT",
+      "name": "意大利语",
+      "nativeName": "意大利语",
+      "enabled": true,
+      "file": "it-IT.json"
     }
   ],
   "defaultLanguage": "zh-CN",

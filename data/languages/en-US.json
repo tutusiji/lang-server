@@ -1,11 +1,12 @@
 {
   "login": {
-    "title": "Login231321",
-    "username": "Username",
+    "title": "Login1212",
     "password": "Password",
     "submit": "Sign In",
-    "tips": "Please enter",
-    "error": "Login failed"
+    "error": "Login failed",
+    "title33": "",
+    "title2": "",
+    "title2232323": ""
   },
   "lang": {
     "current": "English"

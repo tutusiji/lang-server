@@ -1,11 +1,12 @@
 {
   "login": {
     "title": "Sistema de Login Remoto",
-    "username": "Conta",
     "password": "Senha",
     "submit": "Entrar",
-    "tips": "Por favor, insira",
-    "error": "Falha no login"
+    "error": "Falha no login",
+    "title33": "",
+    "title2": "",
+    "title2232323": ""
   },
   "lang": {
     "current": "Chinês"

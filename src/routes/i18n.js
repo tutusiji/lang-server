@@ -128,8 +128,132 @@ async function i18nRoutes(fastify, options) {
     }
   });
 
-  // 批量更新多个语言的指定key
-  fastify.post('/languages/update-key-batch', async (request, reply) => {
+  // 新增key接口 - 专门用于创建新的key，包含重复检查
+  fastify.post('/languages/create-key', async (request, reply) => {
+    try {
+      const { key, translations } = request.body;
+      
+      if (!key || typeof key !== 'string') {
+        return reply.status(400).send({
+          success: false,
+          error: 'key must be a valid string'
+        });
+      }
+      
+      if (!translations || typeof translations !== 'object') {
+        return reply.status(400).send({
+          success: false,
+          error: 'translations must be an object'
+        });
+      }
+
+      // 检查key是否已存在
+      const languageList = await fs.readJson(LANGUAGE_LIST_FILE);
+      const checkKeyExists = (obj, keyPath) => {
+        const parts = keyPath.split('.');
+        let current = obj;
+        for (const part of parts) {
+          if (!current || typeof current !== 'object' || !(part in current)) {
+            return false;
+          }
+          current = current[part];
+        }
+        return true;
+      };
+      
+      // 检查所有语言文件中是否已存在该key
+      for (const lang of languageList.languages) {
+        const filePath = path.join(LANGUAGES_DIR, `${lang.code}.json`);
+        if (await fs.pathExists(filePath)) {
+          try {
+            const data = await fs.readJson(filePath);
+            if (checkKeyExists(data, key)) {
+              return reply.status(409).send({
+                success: false,
+                error: `Key '${key}' already exists. Please use a different key name.`,
+                code: 'KEY_ALREADY_EXISTS'
+              });
+            }
+          } catch { /* ignore file read errors */ }
+        }
+      }
+
+      // 创建新key
+      const results = [];
+      const errors = [];
+
+      for (const [languageCode, value] of Object.entries(translations)) {
+        try {
+          const filePath = path.join(LANGUAGES_DIR, `${languageCode}.json`);
+          
+          let languageTranslations = {};
+          if (await fs.pathExists(filePath)) {
+            languageTranslations = await fs.readJson(filePath);
+          }
+
+          // 创建嵌套结构
+          const keys = key.split('.');
+          let current = languageTranslations;
+          
+          for (let i = 0; i < keys.length - 1; i++) {
+            const k = keys[i];
+            if (!current[k] || typeof current[k] !== 'object') {
+              current[k] = {};
+            }
+            current = current[k];
+          }
+          
+          const lastKey = keys[keys.length - 1];
+          current[lastKey] = value || '';
+
+          await fs.writeJson(filePath, languageTranslations, { spaces: 2 });
+          
+          results.push({
+            code: languageCode,
+            key,
+            value,
+            success: true
+          });
+        } catch (error) {
+          errors.push({
+            code: languageCode,
+            key,
+            error: error.message
+          });
+        }
+      }
+      
+      // 传播到所有其他语言
+      if (results.length > 0) {
+        const providedMap = Object.fromEntries(results.map(r => [r.code, r.value]))
+        await propagateKeyToAllLanguages(key, null, '', providedMap)
+      }
+
+      // 注意：版本更新在 propagateKeyToAllLanguages 中已处理
+
+      return reply.send({
+        success: true,
+        message: `Key '${key}' created successfully`,
+        data: {
+          key,
+          successCount: results.length,
+          errorCount: errors.length,
+          results,
+          errors: errors.length > 0 ? errors : undefined
+        }
+      });
+    } catch (error) {
+      fastify.log.error('Error creating key:', error);
+      reply.status(500).send({
+        success: false,
+        error: 'Failed to create key',
+        message: error.message
+      });
+    }
+  });
+
+  // 更新现有key接口 - 专门用于修改现有key的翻译内容，不检查重复
+  fastify.put('/languages/update-key', async (request, reply) => {
     try {
       const { key, translations } = request.body;
       
@@ -150,22 +274,20 @@ async function i18nRoutes(fastify, options) {
       const results = [];
       const errors = [];
 
-      // 批量更新每个语言
+      // 直接更新，不检查重复
       for (const [languageCode, value] of Object.entries(translations)) {
         try {
           const filePath = path.join(LANGUAGES_DIR, `${languageCode}.json`);
           
-          // 检查文件是否存在，如果不存在则创建
           let languageTranslations = {};
           if (await fs.pathExists(filePath)) {
             languageTranslations = await fs.readJson(filePath);
           }
-          
-          // 设置嵌套key的值
+
+          // 创建或更新嵌套结构
           const keys = key.split('.');
           let current = languageTranslations;
           
-          // 遍历到倒数第二个key，确保路径存在
           for (let i = 0; i < keys.length - 1; i++) {
             const k = keys[i];
             if (!current[k] || typeof current[k] !== 'object') {
@@ -174,11 +296,9 @@ async function i18nRoutes(fastify, options) {
             current = current[k];
           }
           
-          // 设置最后一个key的值
           const lastKey = keys[keys.length - 1];
           current[lastKey] = value || '';
 
-          // 保存更新后的文件
           await fs.writeJson(filePath, languageTranslations, { spaces: 2 });
           
           results.push({
@@ -195,17 +315,13 @@ async function i18nRoutes(fastify, options) {
           });
         }
       }
-      
-      // 扩展：将该 key 写入所有语言（未提供翻译的设为空字符串）及模板
-      if (results.length > 0) {
-        // 创建一个合并映射：成功的语言使用其 value，失败或未涉及的写空字符串
-        const providedMap = Object.fromEntries(results.map(r => [r.code, r.value]))
-        await propagateKeyToAllLanguages(key, null, '', providedMap)
-      }
 
-      return {
+      // 触发版本更新
+      await incrementVersion();
+
+      return reply.send({
         success: true,
-        message: `Key '${key}' batch update completed`,
+        message: `Key '${key}' updated successfully`,
         data: {
           key,
           successCount: results.length,
@@ -213,18 +329,18 @@ async function i18nRoutes(fastify, options) {
           results,
           errors: errors.length > 0 ? errors : undefined
         }
-      };
+      });
     } catch (error) {
-      fastify.log.error('Error in batch key update:', error);
+      fastify.log.error('Error updating key:', error);
       reply.status(500).send({
         success: false,
-        error: 'Failed to batch update language key',
+        error: 'Failed to update key',
         message: error.message
       });
     }
   });
 
-  // 重命名 key（迁移所有语言与模板）
+  // 重命名 key（迁移所有语言）
   fastify.post('/languages/rename-key', async (request, reply) => {
     try {
       const { oldKey, newKey, overwrite = false } = request.body || {};
@@ -240,11 +356,6 @@ async function i18nRoutes(fastify, options) {
       }
 
       const languageList = await fs.readJson(LANGUAGE_LIST_FILE);
-      const templatePath = path.join(__dirname, '../../data/language-template.json');
-      let template = {};
-      if (await fs.pathExists(templatePath)) {
-        try { template = await fs.readJson(templatePath); } catch { template = {}; }
-      }
 
       // 工具函数
       const getNestedValue = (obj, keyPath) => {
@@ -281,7 +392,7 @@ async function i18nRoutes(fastify, options) {
         return false;
       };
 
-      // 检查新 key 是否已存在（任意语言 / 模板），除非 overwrite
+      // 检查新 key 是否已存在（任意语言），除非 overwrite
       let conflict = false;
       for (const lang of languageList.languages) {
         const filePath = path.join(LANGUAGES_DIR, `${lang.code}.json`);
@@ -292,7 +403,6 @@ async function i18nRoutes(fastify, options) {
           } catch { /* ignore */ }
         }
       }
-      if (!conflict && getNestedValue(template, newKey) !== undefined) conflict = true;
       if (conflict && !overwrite) {
         return reply.status(409).send({ success: false, error: `newKey '${newKey}' already exists (set overwrite=true to force)` });
       }
@@ -319,16 +429,6 @@ async function i18nRoutes(fastify, options) {
         }
       }
 
-      // 模板同步：如果旧 key 在模板存在，则迁移
-      const tplVal = getNestedValue(template, oldKey);
-      if (tplVal !== undefined) {
-        if (getNestedValue(template, newKey) === undefined || overwrite) {
-          setNestedKey(template, newKey, tplVal);
-        }
-        deleteNestedKey(template, oldKey);
-        await fs.writeJson(templatePath, template, { spaces: 2 });
-      }
-
       // bump 版本
       await incrementVersion();
 
@@ -337,10 +437,9 @@ async function i18nRoutes(fastify, options) {
         message: 'Key renamed successfully',
         data: {
           oldKey,
-            newKey,
+          newKey,
           overwrite,
-          languages: changes,
-          templateMoved: tplVal !== undefined
+          languages: changes
         }
       });
     } catch (error) {
@@ -361,12 +460,7 @@ async function i18nRoutes(fastify, options) {
         return reply.status(400).send({ success: false, error: 'Key format invalid' });
       }
       const languageList = await fs.readJson(LANGUAGE_LIST_FILE);
-      const templatePath = path.join(__dirname, '../../data/language-template.json');
-      let template = {};
-      if (await fs.pathExists(templatePath)) {
-        try { template = await fs.readJson(templatePath); } catch { template = {}; }
-      }
-      const parts = key.split('.');
+      
       const deleteNestedKey = (obj, keyPath) => {
         const segs = keyPath.split('.');
         const stack = [];
@@ -393,12 +487,6 @@ async function i18nRoutes(fastify, options) {
         return false;
       };
 
-      let templateDeleted = false;
-      if (deleteNestedKey(template, key)) {
-        templateDeleted = true;
-        await fs.writeJson(templatePath, template, { spaces: 2 });
-      }
-
       const deletedLanguages = [];
       for (const lang of languageList.languages) {
         const code = lang.code;
@@ -414,12 +502,12 @@ async function i18nRoutes(fastify, options) {
         }
       }
 
-      if (deletedLanguages.length === 0 && !templateDeleted) {
-        return reply.send({ success: true, message: 'Key not found', data: { key, deletedLanguages: [], templateDeleted: false } });
+      if (deletedLanguages.length === 0) {
+        return reply.send({ success: true, message: 'Key not found', data: { key, deletedLanguages: [] } });
       }
 
       await incrementVersion();
-      return reply.send({ success: true, message: 'Key deleted successfully', data: { key, deletedLanguages, templateDeleted } });
+      return reply.send({ success: true, message: 'Key deleted successfully', data: { key, deletedLanguages } });
     } catch (error) {
       fastify.log.error('Error deleting key:', error);
       reply.status(500).send({ success: false, error: 'Failed to delete key', message: error.message });
@@ -438,14 +526,14 @@ async function i18nRoutes(fastify, options) {
         });
       }
 
-      // 检查语言是否已存在
+      // 检查语言是否已存在 - 后端校验
       const languageList = await fs.readJson(LANGUAGE_LIST_FILE);
       const existingLanguage = languageList.languages.find(lang => lang.code === code);
       
-      if (existingLanguage && !overwrite) {
+      if (existingLanguage) {
         return reply.status(409).send({
           success: false,
-          error: `Language with code ${code} already exists. Set overwrite=true to replace it.`
+          error: `Language with code '${code}' already exists.`
         });
       }
 
@@ -458,20 +546,29 @@ async function i18nRoutes(fastify, options) {
         file: `${code}.json`
       };
       
-      // 从模板创建语言文件
-      const templatePath = path.join(__dirname, '../../data/language-template.json');
-      const template = await fs.readJson(templatePath);
+      // 使用 zh-CN.json 作为模板创建语言文件
+      const zhCNPath = path.join(LANGUAGES_DIR, 'zh-CN.json');
+      let template = {};
+      if (await fs.pathExists(zhCNPath)) {
+        template = await fs.readJson(zhCNPath);
+        // 清空所有 key 的值，保留结构
+        const clearValues = (obj) => {
+          for (const key in obj) {
+            if (typeof obj[key] === 'object' && obj[key] !== null) {
+              clearValues(obj[key]);
+            } else {
+              obj[key] = '';
+            }
+          }
+          return obj;
+        };
+        template = clearValues({ ...template });
+      }
+      
       const filePath = path.join(LANGUAGES_DIR, `${code}.json`);
 
-      // 更新语言列表
-      if (existingLanguage) {
-        // 更新现有语言
-        const index = languageList.languages.findIndex(lang => lang.code === code);
-        languageList.languages[index] = newLanguage;
-      } else {
-        // 添加新语言
-        languageList.languages.push(newLanguage);
-      }
+      // 添加新语言到列表
+      languageList.languages.push(newLanguage);
       
       // 同时写入语言列表和语言文件
       await Promise.all([
@@ -484,10 +581,9 @@ async function i18nRoutes(fastify, options) {
       
       fastify.log.info(`Language files created successfully for ${code}`);
 
-      const action = existingLanguage ? 'updated' : 'added';
       return {
         success: true,
-        message: `Language ${code} ${action} successfully`,
+        message: `Language ${code} added successfully`,
         data: newLanguage
       };
     } catch (error) {
@@ -682,8 +778,24 @@ async function incrementVersion() {
     const currentVersion = languageList.version || '1.0.0';
     const versionParts = currentVersion.split('.').map(Number);
     
-    // 递增补丁版本号
+    // 确保有三段版本号
+    while (versionParts.length < 3) {
+      versionParts.push(0);
+    }
+    
+    // 三段式版本号自增逻辑，每段满100进位
     versionParts[2] = (versionParts[2] || 0) + 1;
+    
+    // 检查进位
+    if (versionParts[2] >= 100) {
+      versionParts[2] = 0;
+      versionParts[1] = (versionParts[1] || 0) + 1;
+      
+      if (versionParts[1] >= 100) {
+        versionParts[1] = 0;
+        versionParts[0] = (versionParts[0] || 0) + 1;
+      }
+    }
     
     const newVersion = versionParts.join('.');
     const now = new Date().toISOString();
@@ -716,32 +828,11 @@ function setNestedKey(root, keyPath, value) {
   cur[parts[parts.length - 1]] = value;
 }
 
-// 将 key 同步到所有语言文件与模板（未提供翻译时填空字符串）
+// 将 key 同步到所有语言文件（未提供翻译时填空字符串）
 async function propagateKeyToAllLanguages(key, justUpdatedCode = null, updatedValue = '', providedMap = null) {
   try {
     const languageList = await fs.readJson(LANGUAGE_LIST_FILE);
-    const templatePath = path.join(__dirname, '../../data/language-template.json');
-    let template = {};
-    if (await fs.pathExists(templatePath)) {
-      try { template = await fs.readJson(templatePath); } catch { template = {}; }
-    }
-    // 更新模板（若不存在该 key）
-    let templateChanged = false;
-    const checkTemplate = () => {
-      let probe = template;
-      const parts = key.split('.');
-      for (let i = 0; i < parts.length; i++) {
-        const p = parts[i];
-        if (i === parts.length - 1) {
-          if (probe[p] === undefined) { templateChanged = true; setNestedKey(template, key, ''); }
-        } else {
-          if (!probe[p] || typeof probe[p] !== 'object') { probe[p] = {}; }
-          probe = probe[p];
-        }
-      }
-    };
-    checkTemplate();
-
+    
     // 遍历语言文件
     for (const lang of languageList.languages) {
       const code = lang.code;
@@ -775,10 +866,6 @@ async function propagateKeyToAllLanguages(key, justUpdatedCode = null, updatedVa
         setNestedKey(data, key, providedMap[code]);
         await fs.writeJson(filePath, data, { spaces: 2 });
       }
-    }
-
-    if (templateChanged) {
-      await fs.writeJson(templatePath, template, { spaces: 2 });
     }
 
     // 统一 bump 版本

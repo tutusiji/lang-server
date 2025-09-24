@@ -1,15 +1,19 @@
 {
   "login": {
     "title": "",
-    "username": "",
     "password": "",
-    "submit": ""
+    "submit": "",
+    "title2233": "1111",
+    "error": "222",
+    "title33": "",
+    "title2": "",
+    "title2232323": ""
   },
   "lang": {
     "current": ""
   },
   "user": {
-    "welcome": "",
+    "welcome": "121212",
     "logout": ""
   },
   "menu": {

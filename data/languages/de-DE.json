@@ -1,11 +1,12 @@
 {
   "login": {
     "title": "Anmeldesystem",
-    "username": "Benutzerkonto",
     "password": "Passworttttt",
     "submit": "Anmelden",
-    "tips": "Bitte eingeben",
-    "error": "Anmeldung fehlgeschlagen"
+    "error": "Anmeldung fehlgeschlagen",
+    "title33": "",
+    "title2": "",
+    "title2232323": ""
   },
   "lang": {
     "current": "Chinesisch"

@@ -1,11 +1,12 @@
 {
   "login": {
     "title": "登入系統",
-    "username": "帳號",
     "password": "密碼",
     "submit": "登入",
-    "tips": "請輸入",
-    "error": "登入失敗"
+    "error": "登入失敗",
+    "title33": "",
+    "title2": "",
+    "title2232323": ""
   },
   "lang": {
     "current": "繁體中文"

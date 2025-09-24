@@ -1,11 +1,12 @@
 {
   "login": {
     "title": "登入系統1",
-    "username": "账号1",
     "password": "密码",
     "submit": "登录",
-    "tips": "请输入",
-    "error": "登陆失败"
+    "error": "登陆失败",
+    "title33": "333",
+    "title2": "1",
+    "title2232323": "2"
   },
   "lang": {
     "current": "中文"

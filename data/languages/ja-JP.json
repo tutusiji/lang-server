@@ -1,11 +1,12 @@
 {
   "login": {
     "title": "ログイン",
-    "username": "ユーザー名",
     "password": "パスワード",
     "submit": "ログイン",
-    "tips": "入力してください",
-    "error": "ログイン失敗"
+    "error": "ログイン失敗",
+    "title33": "",
+    "title2": "",
+    "title2232323": ""
   },
   "lang": {
     "current": "日本語"
